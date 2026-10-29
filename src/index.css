@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Calm, paper-like palette. Components use the semantic names below
+   (bg-paper, text-ink, border-line, ...) so dark mode is handled here. */
+:root {
+  color-scheme: light dark;
+  --paper: #f7f5f0;
+  --sidebar: #efebe4;
+  --card: #ffffff;
+  --ink: #1c1b19;
+  --muted: #6b675f;
+  --faint: #a29d93;
+  --line: #e4dfd5;
+  --hover: #e9e4db;
+  --accent: #4b3fc4;
+  --accent-soft: #ecebfa;
+  --rec: #e5484d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #151412;
+    --sidebar: #1b1a17;
+    --card: #1f1e1b;
+    --ink: #f2efe9;
+    --muted: #a39e94;
+    --faint: #6f6a62;
+    --line: #2f2d29;
+    --hover: #2a2825;
+    --accent: #a59cff;
+    --accent-soft: #29264a;
+    --rec: #ff6369;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sidebar: var(--sidebar);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-hover: var(--hover);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-rec: var(--rec);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}

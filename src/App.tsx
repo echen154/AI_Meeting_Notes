@@ -1,12 +1,78 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HomeView } from "./components/HomeView";
+import { LoginScreen } from "./components/LoginScreen";
 import { NotesView } from "./components/NotesView";
 import { Sidebar, type View } from "./components/Sidebar";
 import { useMeetingSession, type CompletedSession } from "./hooks/useMeetingSession";
 import { useSavedNotes } from "./hooks/useSavedNotes";
+import { fetchServiceStatus, fetchSession, logout } from "./lib/api";
+import type { ServiceStatus } from "./types";
+
+type Gate =
+  | { state: "loading" }
+  | { state: "login" }
+  | { state: "error"; message: string }
+  | { state: "ready"; status: ServiceStatus; authRequired: boolean };
+
+// Checks the login session and server status before showing the app.
+async function resolveGate(): Promise<Gate> {
+  try {
+    const session = await fetchSession();
+    if (!session.authenticated) return { state: "login" };
+    const status = await fetchServiceStatus();
+    return { state: "ready", status, authRequired: session.required };
+  } catch (err) {
+    return {
+      state: "error",
+      message: err instanceof Error ? err.message : "Couldn't reach the server.",
+    };
+  }
+}
 
 function App() {
-  const library = useSavedNotes();
+  const [gate, setGate] = useState<Gate>({ state: "loading" });
+
+  const load = useCallback(() => {
+    void resolveGate().then(setGate);
+  }, []);
+
+  useEffect(() => {
+    void resolveGate().then(setGate);
+  }, []);
+
+  if (gate.state === "loading") return <div className="min-h-screen bg-paper" />;
+  if (gate.state === "login") return <LoginScreen onSuccess={load} />;
+  if (gate.state === "error") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-paper p-6 text-sm text-muted">
+        {gate.message}. Make sure the server is running, then reload.
+      </div>
+    );
+  }
+
+  return (
+    <MainApp
+      serviceStatus={gate.status}
+      onLogout={
+        gate.authRequired
+          ? async () => {
+              await logout();
+              setGate({ state: "login" });
+            }
+          : undefined
+      }
+    />
+  );
+}
+
+function MainApp({
+  serviceStatus,
+  onLogout,
+}: {
+  serviceStatus: ServiceStatus;
+  onLogout?: () => void;
+}) {
+  const library = useSavedNotes(serviceStatus.notesStorage);
   const [view, setView] = useState<View>("home");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [justSavedId, setJustSavedId] = useState<string | null>(null);
@@ -41,7 +107,8 @@ function App() {
         view={view}
         onNavigate={setView}
         noteCount={library.notes.length}
-        serviceStatus={session.serviceStatus}
+        serviceStatus={serviceStatus}
+        onLogout={onLogout}
       />
 
       <main className="flex min-h-0 flex-1 flex-col md:overflow-y-auto">

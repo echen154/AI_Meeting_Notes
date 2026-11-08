@@ -41,4 +41,5 @@ export interface SavedNote {
 export interface ServiceStatus {
   sttMode: "live" | "demo";
   llmMode: "live" | "demo";
+  notesStorage: "server" | "browser";
 }

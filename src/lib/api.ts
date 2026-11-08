@@ -10,6 +10,25 @@ async function errorFrom(res: Response, fallback: string): Promise<Error> {
   return new Error(fallback);
 }
 
+export async function fetchSession(): Promise<{ required: boolean; authenticated: boolean }> {
+  const res = await fetch("/api/auth/session");
+  if (!res.ok) throw new Error("Couldn't reach the server");
+  return res.json();
+}
+
+export async function login(password: string): Promise<void> {
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  if (!res.ok) throw await errorFrom(res, "Couldn't log in");
+}
+
+export async function logout(): Promise<void> {
+  await fetch("/api/auth/logout", { method: "POST" });
+}
+
 export async function fetchServiceStatus(): Promise<ServiceStatus> {
   const res = await fetch("/api/status");
   if (!res.ok) throw new Error("Failed to load service status");

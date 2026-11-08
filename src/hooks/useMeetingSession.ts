@@ -1,14 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  fetchServiceStatus,
-  requestNotesUpdate,
-  transcribeSegment,
-} from "../lib/api";
+import { requestNotesUpdate, transcribeSegment } from "../lib/api";
 import {
   EMPTY_NOTES,
   type MeetingNotes,
   type MicStatus,
-  type ServiceStatus,
   type TranscriptEntry,
 } from "../types";
 
@@ -45,7 +40,6 @@ export function useMeetingSession(
   const [notes, setNotes] = useState<MeetingNotes>(EMPTY_NOTES);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isUpdatingNotes, setIsUpdatingNotes] = useState(false);
-  const [serviceStatus, setServiceStatus] = useState<ServiceStatus | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const streamRef = useRef<MediaStream | null>(null);
@@ -69,12 +63,6 @@ export function useMeetingSession(
   useEffect(() => {
     onCompleteRef.current = onSessionComplete;
   }, [onSessionComplete]);
-
-  useEffect(() => {
-    fetchServiceStatus()
-      .then(setServiceStatus)
-      .catch(() => setServiceStatus(null));
-  }, []);
 
   const appendTranscript = useCallback((text: string) => {
     if (!text.trim()) return;
@@ -266,7 +254,6 @@ export function useMeetingSession(
     notes,
     isTranscribing,
     isUpdatingNotes,
-    serviceStatus,
     errorMessage,
     start,
     stop,

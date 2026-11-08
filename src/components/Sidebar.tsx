@@ -36,11 +36,13 @@ export function Sidebar({
   onNavigate,
   noteCount,
   serviceStatus,
+  onLogout,
 }: {
   view: View;
   onNavigate: (view: View) => void;
   noteCount: number;
   serviceStatus: ServiceStatus | null;
+  onLogout?: () => void;
 }) {
   const items: { id: View; label: string; icon: ReactNode; badge?: number }[] = [
     { id: "home", label: "Home", icon: <HomeIcon /> },
@@ -78,13 +80,28 @@ export function Sidebar({
         })}
       </nav>
 
-      {demoParts.length > 0 && (
-        <div className="mx-3 mt-auto mb-4 hidden rounded-lg border border-line bg-card px-3 py-2.5 text-xs leading-relaxed text-muted md:block">
-          <span className="font-medium text-ink">Demo mode</span>
-          <br />
-          Using {demoParts.join(" and ")}. Add API keys in .env for the real thing.
-        </div>
-      )}
+      <div className="mt-auto hidden md:block">
+        {demoParts.length > 0 && (
+          <div className="mx-3 mb-3 rounded-lg border border-line bg-card px-3 py-2.5 text-xs leading-relaxed text-muted">
+            <span className="font-medium text-ink">Demo mode</span>
+            <br />
+            Using {demoParts.join(" and ")}. Add API keys in .env for the real thing.
+          </div>
+        )}
+        {serviceStatus?.notesStorage === "browser" && (
+          <p className="mx-5 mb-3 text-xs leading-relaxed text-faint">
+            Notes are saved in this browser only.
+          </p>
+        )}
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="mx-3 mb-4 rounded-lg px-3 py-2 text-left text-sm text-muted transition hover:bg-hover hover:text-ink"
+          >
+            Log out
+          </button>
+        )}
+      </div>
     </aside>
   );
 }

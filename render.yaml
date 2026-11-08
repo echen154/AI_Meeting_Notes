@@ -1,0 +1,21 @@
+# Render Blueprint: one-click hosting for this app.
+# Deploy: https://render.com/deploy?repo=https://github.com/echen154/AI_Meeting_Notes
+services:
+  - type: web
+    name: ai-meeting-notes
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # Asked for during setup; never stored in the repo.
+      - key: GROQ_API_KEY
+        sync: false
+      - key: APP_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      # Render's free disk is wiped on restart, so keep notes in the browser.
+      - key: NOTES_STORAGE
+        value: browser
